@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.yelp.model.Business;
+import it.polito.tdp.yelp.model.Migliori;
 import it.polito.tdp.yelp.model.Model;
 import it.polito.tdp.yelp.model.Review;
 import javafx.event.ActionEvent;
@@ -48,7 +49,10 @@ public class FXMLController {
     	this.cmbLocale.getItems().clear();
     	String citta = this.cmbCitta.getValue();
     	if(citta != null) {
-    		//TODO popolare la tendina dei locali per la città selezionata
+    		
+    		List<Business> b = this.model.getBusinessByCity(citta);
+    		
+    		this.cmbLocale.getItems().addAll(b);
     		
     	}
     }
@@ -56,10 +60,40 @@ public class FXMLController {
     @FXML
     void doCreaGrafo(ActionEvent event) {
     	
+    	this.txtResult.clear();
+    	
+    	String citta = this.cmbCitta.getValue();
+    	
+    	if(citta == null) {
+    		this.txtResult.appendText("Selezionare una città per continuare");
+    		return;
+    	}
+    	
+    	
+    	Business b = this.cmbLocale.getValue();
+    	
+    	if(b == null) {
+    		this.txtResult.appendText("Selezionare un locale per continuare");
+    		return;
+    	}
+    	
+    	this.model.creaGrafo(b);
+    	
+    	this.txtResult.appendText(this.model.infoGrafo());
+    	
+    	List<Migliori> migliori = this.model.trovaMigliore();
+    	
+    	for(Migliori m : migliori) {
+    		this.txtResult.appendText("\n\n"+m.getR().getReviewId()+" 		#archi uscenti: "+m.getUscenti());
+    	}
+    	
+    	this.btnMiglioramento.setDisable(false);
     }
 
     @FXML
     void doTrovaMiglioramento(ActionEvent event) {
+    	
+    	this.txtResult.clear();
     	
     }
 
@@ -75,5 +109,7 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	this.cmbCitta.getItems().addAll(this.model.getCitta());
+    	this.btnMiglioramento.setDisable(true);
     }
 }

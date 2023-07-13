@@ -12,6 +12,38 @@ import it.polito.tdp.yelp.model.User;
 
 public class YelpDao {
 	
+	public Integer getPunteggioRecensione(Review r) {
+		
+		String sql = "SELECT r.stars "
+				+ "FROM reviews r "
+				+ "WHERE r.review_id = ? ";
+
+		Connection conn = DBConnect.getConnection();
+		
+		Integer punteggio = 0;
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, r.getReviewId());
+			ResultSet res = st.executeQuery();
+			
+			res.first();
+			
+			punteggio = res.getInt("stars");
+			
+			res.close();
+			st.close();
+			conn.close();
+			return punteggio;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		
+	}
+	
 	public List<Review> getReviewsByBusiness(Business b){
 		
 		String sql = "SELECT r.* "

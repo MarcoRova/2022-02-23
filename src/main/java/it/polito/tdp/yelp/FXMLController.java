@@ -95,6 +95,14 @@ public class FXMLController {
     	
     	this.txtResult.clear();
     	
+    	List<Review> percorso = this.model.getPercorso();
+    	
+    	for(Review r : percorso) {
+    		this.txtResult.appendText("\n"+r.getReviewId());
+    	}
+    	
+    	this.txtResult.appendText("\n\n"+this.model.calcolaGiorni());
+    	
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete

@@ -20,6 +20,7 @@ public class Model {
 	private Map<String, Business> businessIdMap = new HashMap<>();
 	private List<String> citta;
 	private List<Review> vertici = new ArrayList<>();
+	private List<Review> percorso;
 		
 	public Model() {
 		this.dao = new YelpDao();
@@ -78,18 +79,61 @@ public class Model {
 		return migliori;
 	}
 	
+	
+	public List<Review> getPercorso(){
+		
+		this.percorso = new ArrayList<>();
+		List<Review> parziale = new ArrayList<>();
+		
+		parziale.add(vertici.get(0));
+		
+		cerca(parziale);
+		
+		return percorso;
+	}
+	
+	public void cerca(List<Review> parziale) {
+		
+		Review ultimo = parziale.get(parziale.size()-1);
+		
+		List<Review> vicini = Graphs.neighborListOf(this.grafo, ultimo);
+		
+		for(Review vicino : vicini) {
+			if(!parziale.contains(vicino) && this.dao.getPunteggioRecensione(vicino)<=this.dao.getPunteggioRecensione(ultimo)) {
+				
+				parziale.add(vicino);
+				
+				cerca(parziale);
+				
+				parziale.remove(vicino);
+			}
+		}
+		
+		if(parziale.size() > percorso.size()) {
+			this.percorso = new ArrayList<>(parziale);
+		}
+	}
+	
+	public String calcolaGiorni() {
+		
+		Review iniziale = this.percorso.get(0);
+		
+		Review finale = this.percorso.get(percorso.size()-1);
+		
+		double delta = ChronoUnit.DAYS.between(iniziale.getDate(), finale.getDate());
+		
+		delta = Math.abs(delta);
+		
+		return "Differenza tra prima e ultima recensioni: "+delta+" giorni.";
+	}
+
 	public String infoGrafo() {
 		return "Grafo creato!\n#Vertici: "+this.grafo.vertexSet().size()+"\n#Archi: "+this.grafo.edgeSet().size();
 	}
-	
-
-
 
 	public Graph<Review, DefaultWeightedEdge> getGrafo() {
 		return grafo;
 	}
-
-
 
 	public List<String> getCitta() {
 		return citta;
